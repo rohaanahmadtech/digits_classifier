@@ -1,5 +1,7 @@
 venv/
+Dataset/
 __pycache__/
 *.pyc
 .env
 .idea/
+.vscode/
