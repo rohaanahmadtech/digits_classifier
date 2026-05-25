@@ -1,0 +1,278 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 40px;
+}
+
+.drawing-area {
+    text-align: center;
+}
+
+canvas {
+    border: 3px solid #333;
+    border-radius: 10px;
+    background: white;
+    cursor: crosshair;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.canvas-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 12px 24px;
+    font-size: 1em;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.instruction {
+    margin-top: 15px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.results-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.prediction-card {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.prediction-card h2, .probability-chart h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.prediction-display {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.predicted-digit {
+    font-size: 120px;
+    font-weight: bold;
+    color: #667eea;
+    line-height: 1;
+    margin: 20px 0;
+}
+
+.confidence {
+    font-size: 1.2em;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.top-predictions {
+    margin-top: 20px;
+}
+
+.predictions-list {
+    margin-top: 10px;
+}
+
+.prediction-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    margin: 5px 0;
+    background: white;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.prediction-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.prediction-item .digit {
+    font-size: 1.5em;
+    font-weight: bold;
+    width: 50px;
+    text-align: center;
+}
+
+.confidence-bar {
+    flex: 1;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 30px;
+}
+
+.bar {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.5s ease;
+    border-radius: 10px;
+}
+
+.percentage {
+    font-weight: bold;
+    min-width: 60px;
+    text-align: right;
+}
+
+.top-prediction {
+    background: #e8f5e9;
+    border-left: 4px solid #4caf50;
+}
+
+.probability-chart {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.probability-bars {
+    margin-top: 15px;
+}
+
+.prob-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+}
+
+.digit-label {
+    font-weight: bold;
+    width: 30px;
+    text-align: center;
+}
+
+.prob-bar-container {
+    flex: 1;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 25px;
+}
+
+.prob-bar {
+    height: 100%;
+    transition: width 0.5s ease;
+    border-radius: 10px;
+}
+
+.prob-value {
+    min-width: 60px;
+    font-size: 0.9em;
+    text-align: right;
+}
+
+.info-section {
+    background: #f8f9fa;
+    padding: 20px 40px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.info-section h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.info-section ul {
+    list-style-position: inside;
+    color: #666;
+}
+
+.info-section li {
+    margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+    
+    header h1 {
+        font-size: 1.8em;
+    }
+    
+    canvas {
+        width: 100%;
+        height: auto;
+    }
+    
+    .predicted-digit {
+        font-size: 80px;
+    }
+}

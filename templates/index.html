@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digit Classifier - Handwritten Digit Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✍️ Handwritten Digit Classifier</h1>
+            <p>Draw a digit (0-9) in the canvas below and let the AI recognize it!</p>
+        </header>
+
+        <div class="main-content">
+            <div class="drawing-area">
+                <canvas id="canvas" width="280" height="280"></canvas>
+                <div class="canvas-controls">
+                    <button id="clearBtn" class="btn btn-secondary">🗑️ Clear</button>
+                    <button id="predictBtn" class="btn btn-primary">🔍 Predict Digit</button>
+                </div>
+                <p class="instruction">Click and drag to draw a digit</p>
+            </div>
+
+            <div class="results-area">
+                <div class="prediction-card">
+                    <h2>Prediction Result</h2>
+                    <div class="prediction-display">
+                        <div class="predicted-digit" id="predictedDigit">?</div>
+                        <div class="confidence" id="confidence"></div>
+                    </div>
+                    
+                    <div class="top-predictions">
+                        <h3>Top Predictions</h3>
+                        <div id="topPredictions" class="predictions-list"></div>
+                    </div>
+                </div>
+
+                <div class="probability-chart">
+                    <h3>Probability Distribution</h3>
+                    <div id="probabilityBars" class="probability-bars"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>💡 Tips for better recognition:</h3>
+            <ul>
+                <li>Draw the digit clearly in the center of the canvas</li>
+                <li>Use a thick stroke for better visibility</li>
+                <li>Make the digit fill most of the canvas</li>
+                <li>Click "Clear" to start over</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Setup canvas
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 20;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        let drawing = false;
+        
+        // Drawing functions
+        function startDrawing(e) {
+            drawing = true;
+            const pos = getCanvasCoordinates(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        }
+        
+        function draw(e) {
+            if (!drawing) return;
+            const pos = getCanvasCoordinates(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+        
+        function stopDrawing() {
+            drawing = false;
+            ctx.beginPath();
+        }
+        
+        function getCanvasCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            let x = (clientX - rect.left) * scaleX;
+            let y = (clientY - rect.top) * scaleY;
+            
+            x = Math.min(Math.max(x, 0), canvas.width);
+            y = Math.min(Math.max(y, 0), canvas.height);
+            
+            return { x, y };
+        }
+        
+        // Event listeners
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+        
+        // Touch events for mobile
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
+        
+        // Clear canvas
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'black';
+            document.getElementById('predictedDigit').textContent = '?';
+            document.getElementById('confidence').textContent = '';
+            document.getElementById('topPredictions').innerHTML = '';
+            document.getElementById('probabilityBars').innerHTML = '';
+        });
+        
+        // Predict function
+        document.getElementById('predictBtn').addEventListener('click', async () => {
+            // Get canvas data
+            const imageData = canvas.toDataURL('image/jpeg');
+            
+            // Show loading state
+            const predictBtn = document.getElementById('predictBtn');
+            const originalText = predictBtn.textContent;
+            predictBtn.textContent = '⏳ Processing...';
+            predictBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: imageData })
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert('Error: ' + result.error);
+                    return;
+                }
+                
+                // Update UI with results
+                document.getElementById('predictedDigit').textContent = result.predicted_digit;
+                document.getElementById('confidence').textContent = 
+                    `Confidence: ${result.confidence.toFixed(2)}%`;
+                
+                // Update top predictions
+                const topPredictionsDiv = document.getElementById('topPredictions');
+                topPredictionsDiv.innerHTML = result.top_3_predictions.map(pred => `
+                    <div class="prediction-item ${pred.digit === result.predicted_digit ? 'top-prediction' : ''}">
+                        <span class="digit">${pred.digit}</span>
+                        <span class="confidence-bar">
+                            <span class="bar" style="width: ${pred.confidence}%"></span>
+                        </span>
+                        <span class="percentage">${pred.confidence.toFixed(1)}%</span>
+                    </div>
+                `).join('');
+                
+                // Update probability bars
+                const probabilityBarsDiv = document.getElementById('probabilityBars');
+                probabilityBarsDiv.innerHTML = result.all_probabilities.map((prob, idx) => `
+                    <div class="prob-bar-item">
+                        <span class="digit-label">${idx}</span>
+                        <div class="prob-bar-container">
+                            <div class="prob-bar" style="width: ${prob * 100}%; 
+                                 background-color: ${idx === result.predicted_digit ? '#4CAF50' : '#2196F3'}">
+                            </div>
+                        </div>
+                        <span class="prob-value">${(prob * 100).toFixed(1)}%</span>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error making prediction. Please try again.');
+            } finally {
+                predictBtn.textContent = originalText;
+                predictBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
