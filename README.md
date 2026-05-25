@@ -305,11 +305,13 @@ model = Sequential([
 
 # 📷  Visual Assets
 
-* Model architecture diagram
-* Confusion matrix image
-* Sample predictions
-* Training accuracy/loss graphs
-* Demo GIF or screenshots
+* Demo screenshots
+* Output of 7
+<img width="1922" height="2087" alt="output_7" src="https://github.com/user-attachments/assets/e046d9c0-f74b-4dc3-8f7c-2cad674b2344" />
+
+* Output of 1
+<img width="1922" height="2087" alt="output_1" src="https://github.com/user-attachments/assets/68582e0b-4bb9-41f6-9b0b-09f46e02919d" />
+
 
 Example:
 
